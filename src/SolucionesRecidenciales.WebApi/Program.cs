@@ -57,7 +57,7 @@ public class Startup
         services.AddInfrastructure(Configuration);
 
         // Configure MediatR
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
         // Configure DbContext
         services.AddDbContext<ApplicationDbContext>(options =>
