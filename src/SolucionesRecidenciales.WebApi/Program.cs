@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SolucionesRecidenciales.Infrastructure.Persistence;
 using System.Reflection;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediatR(cfg => 
+    cfg.AsScoped(), 
+    typeof(Program).Assembly
+);
 
 var app = builder.Build();
 
