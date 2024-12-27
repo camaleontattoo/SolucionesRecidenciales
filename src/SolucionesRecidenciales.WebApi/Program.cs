@@ -1,92 +1,49 @@
-using SolucionesRecidenciales.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using SolucionesRecidenciales.Infrastructure.Persistence;
-using MediatR;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+using System.Reflection;
 
-namespace SolucionesRecidenciales.WebApi;
+var builder = WebApplication.CreateBuilder(args);
 
-public class Program
+// Add services to the container
+builder.Services.AddControllers();
+
+// Configure database context
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
+    )
+);
+
+// Add Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
 {
-    public static void Main(string[] args)
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        CreateHostBuilder(args).Build().Run();
-    }
+        Title = "Soluciones Residenciales API",
+        Version = "v1"
+    });
+});
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
+// Configure MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Soluciones Residenciales API v1");
+        c.RoutePrefix = string.Empty; // Make Swagger the default page
+    });
 }
 
-public class Startup
-{
-    public IConfiguration Configuration { get; }
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
 
-    public Startup(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Add services to the container.
-        services.AddControllers();
-
-        // Configure Kestrel to listen on specific ports
-        services.Configure<KestrelServerOptions>(
-            Configuration.GetSection("Kestrel")
-        );
-
-        // Configure Swagger
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo 
-            { 
-                Title = "Soluciones Residenciales API", 
-                Version = "v1",
-                Description = "API for Soluciones Residenciales project"
-            });
-        });
-
-        // Configure Infrastructure services
-        services.AddInfrastructure(Configuration);
-
-        // Configure MediatR
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
-        // Configure DbContext
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(
-                Configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
-            )
-        );
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        // Configure the HTTP request pipeline.
-        if (env.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => 
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Soluciones Residenciales API v1");
-                c.RoutePrefix = string.Empty; // This will make Swagger UI the default page
-            });
-        }
-
-        app.UseHttpsRedirection();
-        app.UseRouting();
-        app.UseAuthorization();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
-    }
-}
+app.Run();
