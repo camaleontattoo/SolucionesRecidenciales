@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using SolucionesRecidenciales.Infrastructure.Persistence;
 using System.Reflection;
 using MediatR;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Soluciones Residenciales API",
         Version = "v1"
