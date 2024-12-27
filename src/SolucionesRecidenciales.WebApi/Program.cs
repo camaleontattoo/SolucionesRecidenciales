@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SolucionesRecidenciales.Infrastructure.Persistence;
 using System.Reflection;
 using MediatR;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Soluciones Residenciales API",
         Version = "v1"
@@ -36,15 +37,12 @@ builder.Services.AddMediatR(cfg =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c => 
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c => 
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Soluciones Residenciales API v1");
-        c.RoutePrefix = string.Empty; // Make Swagger the default page
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Soluciones Residenciales API v1");
+    c.RoutePrefix = string.Empty; // Make Swagger the default page
+});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
