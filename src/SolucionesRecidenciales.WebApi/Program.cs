@@ -28,8 +28,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure MediatR
-builder.Services.AddMediatR(cfg => 
-    cfg.AsScoped(), 
+builder.Services.AddMediatR(cfg =>
+    cfg.AsScoped(),
     typeof(Program).Assembly
 );
 
@@ -39,7 +39,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => 
+    app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Soluciones Residenciales API v1");
         c.RoutePrefix = string.Empty; // Make Swagger the default page
@@ -47,6 +47,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 
